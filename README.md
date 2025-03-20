@@ -2,7 +2,7 @@
 
 ## Credits
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Note that it is now in a deprecated stasis, but as of now the project should work (TODO to edit this as necessary down the road).
 
 ## Run Instructions
 
