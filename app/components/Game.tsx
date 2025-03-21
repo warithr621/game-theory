@@ -27,6 +27,17 @@ interface Lobby {
 	allDistributedCards: Card[];
 }
 
+const getServerUrl = () => {
+	if (process.env.NODE_ENV === 'production') {
+		// In production, use the same host but with port 3001
+		const protocol = window.location.protocol;
+		const hostname = window.location.hostname;
+		return `${protocol}//${hostname}:3001`;
+	}
+	// In development, use localhost:3001
+	return 'http://localhost:3001';
+};
+
 export default function Game() {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [playerName, setPlayerName] = useState('');
@@ -38,7 +49,7 @@ export default function Game() {
 	const [showRules, setShowRules] = useState(false);
 
 	useEffect(() => {
-		const newSocket = io(process.env.SOCKET_SERVER_URL || 'http://localhost:3001', {
+		const newSocket = io(getServerUrl(), {
 			reconnection: true,
 			reconnectionAttempts: 5,
 			reconnectionDelay: 1000,
@@ -229,6 +240,8 @@ export default function Game() {
 
 	return (
 		<div className={styles.container}>
+			{error && <div className={styles.error}>{error}</div>}
+			
 			<div className={styles.rulesToggle}>
 				<button onClick={() => setShowRules(!showRules)} className={styles.rulesButton}>
 					Card Order ▼
@@ -255,8 +268,6 @@ export default function Game() {
 					</div>
 				)}
 			</div>
-
-			{error && <div className={styles.error}>{error}</div>}
 
 			{gameState === 'lobby' && (
 				<div className={styles.lobby}>

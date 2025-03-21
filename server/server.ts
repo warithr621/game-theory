@@ -5,13 +5,18 @@ import cors from 'cors';
 import { createDeck, shuffleDeck, distributeCards, Card, ranks, suits } from './gameLogic';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+	origin: process.env.NODE_ENV === 'production'
+		? true  // Allow all origins in production
+		: 'http://localhost:3000',
+	credentials: true
+}));
 
 const server = createServer(app);
 const io = new Server(server, {
 	cors: {
 		origin: process.env.NODE_ENV === 'production'
-			? process.env.SOCKET_SERVER_URL || 'https://your-app-url.ondigitalocean.app'
+			? true  // Allow all origins in production
 			: 'http://localhost:3000',
 		methods: ['GET', 'POST'],
 		credentials: true

@@ -10,7 +10,7 @@ In Game Theory, your goal is to work with your friends to stack your cards in or
 - The suits appear in the order Hearts, Diamonds, Spades, Clubs
 - Within each suit, the cards appear from Ace to King
 - For example, the Ace of Hearts should be before the Jack of Hearts, which should be before the 9 of Diamonds
-When the game starts, players will have the option to add their card on top of the pile. Players are free to talk amongst themselves, but cannot say anything that would give away what card they have next. Once all players place their cards in the right order, the round is marked as a success, and the next round begins with each player now having an additional card (so going from 2 to 3 or 3 to 4).
+When the game starts, players can put a card at the top of the pile by clicking on it. Players are free to talk amongst themselves, but cannot say anything that would give away what card they have next. Once all players place their cards in the right order, the round is marked as a success, and the next round begins with each player now having an additional card (so going from 2 to 3 or 3 to 4).
 
 If a player places in the wrong order (say Player A places a King, when B has a Jack of the same suit), the round is marked unsuccessful, and the round restarts with the same number of cards.
 
