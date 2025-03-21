@@ -29,10 +29,8 @@ interface Lobby {
 
 const getServerUrl = () => {
 	if (process.env.NODE_ENV === 'production') {
-		// In production, use the same host but with port 3001
-		const protocol = window.location.protocol;
-		const hostname = window.location.hostname;
-		return `${protocol}//${hostname}:3001`;
+		// Use the SOCKET_SERVER_URL environment variable in production
+		return process.env.SOCKET_SERVER_URL || window.location.origin;
 	}
 	// In development, use localhost:3001
 	return 'http://localhost:3001';

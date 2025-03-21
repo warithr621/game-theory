@@ -5,6 +5,8 @@ import cors from 'cors';
 import { createDeck, shuffleDeck, distributeCards, Card, ranks, suits } from './gameLogic';
 
 const app = express();
+const PORT = process.env.PORT || 3001;
+
 app.use(cors({
 	origin: process.env.NODE_ENV === 'production'
 		? true  // Allow all origins in production
@@ -20,7 +22,10 @@ const io = new Server(server, {
 			: 'http://localhost:3000',
 		methods: ['GET', 'POST'],
 		credentials: true
-	}
+	},
+	transports: ['websocket', 'polling'],
+	pingTimeout: 60000,
+	pingInterval: 25000
 });
 
 interface Player {
@@ -61,6 +66,16 @@ const getCardsPerPlayer = (round: number, playerCount: number) => {
 
 io.on('connection', (socket) => {
 	console.log('\nUser connected:', socket.id);
+	console.log('Environment:', process.env.NODE_ENV);
+	console.log('Origin:', socket.handshake.headers.origin);
+
+	socket.on('error', (error) => {
+		console.error('Socket error:', error);
+	});
+
+	socket.on('connect_error', (error) => {
+		console.error('Connection error:', error);
+	});
 
 	socket.on('joinLobby', (playerName: string) => {
 		if (!playerName.trim()) {
@@ -97,7 +112,6 @@ io.on('connection', (socket) => {
 		lobby.players.forEach(p => p.cards = []);
 		socket.join('lobby');
 		console.log(`Player ${playerName} joined the lobby`);
-		console.log('Current players:', lobby.players);
 		
 		io.to('lobby').emit('lobbyUpdate', lobby);
 	});
@@ -299,14 +313,13 @@ io.on('connection', (socket) => {
 		// Remove player from lobby
 		lobby.players = lobby.players.filter(p => p.id !== socket.id);
 		console.log('Player removed from lobby');
-		console.log('Current players:', lobby.players);
 		
 		io.to('lobby').emit('lobbyUpdate', lobby);
 	});
 });
 
-const PORT = process.env.SOCKET_PORT || 3001;
 server.listen(PORT, () => {
 	console.log(`Socket.IO server running on port ${PORT}`);
+	console.log('Environment:', process.env.NODE_ENV);
 	console.log('Waiting for connections...');
-}); 
+});
