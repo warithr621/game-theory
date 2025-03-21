@@ -10,8 +10,11 @@ app.use(cors());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
 	cors: {
-		origin: "*",
-		methods: ['GET', 'POST']
+		origin: process.env.NODE_ENV === 'production'
+			? process.env.SOCKET_SERVER_URL || 'https://your-app-url.ondigitalocean.app'
+			: 'http://localhost:3000',
+		methods: ['GET', 'POST'],
+		credentials: true
 	}
 });
 
@@ -45,6 +48,10 @@ const lobby: Lobby = {
 	errorMessage: '',
 	allDistributedCards: [],
 	expectedCardIndex: 0
+};
+
+const getCardsPerPlayer = (round: number, playerCount: number) => {
+	return round + (playerCount >= 5 ? 0 : 1);
 };
 
 io.on('connection', (socket) => {
@@ -112,9 +119,9 @@ io.on('connection', (socket) => {
 		lobby.allDistributedCards = [];
 		lobby.expectedCardIndex = 0;
 
-		// Deal initial cards (2 per player)
+		// Deal initial cards (number depends on player count)
 		const deck = shuffleDeck(createDeck());
-		const cardsPerPlayer = 2 + lobby.currentRound - 1;
+		const cardsPerPlayer = getCardsPerPlayer(lobby.currentRound, lobby.players.length);
 		const distributedCards = distributeCards(deck, lobby.players.length, cardsPerPlayer);
 		
 		// Store all distributed cards in sorted order
@@ -143,47 +150,43 @@ io.on('connection', (socket) => {
 
 	socket.on('placeCard', (card: Card) => {
 		if (!lobby.gameStarted || lobby.gameOver) return;
+		if (lobby.countdown > 0) return; // Add extra protection on server side
 
 		const player = lobby.players.find(p => p.id === socket.id);
 		if (!player) return;
 
-		// Check if the card is in the player's hand
-		const cardIndex = player.cards.findIndex(c => 
-			c.suit === card.suit && c.rank === card.rank
-		);
+		const cardIndex = player.cards.findIndex(c => c.suit === card.suit && c.rank === card.rank);
 		if (cardIndex === -1) return;
+		const [placedCard] = player.cards.splice(cardIndex, 1);
 
-		const expectedCard = lobby.allDistributedCards[lobby.expectedCardIndex];
-		if (card.suit !== expectedCard.suit || card.rank !== expectedCard.rank) {
-			// Put the card back in the player's hand
-			player.cards.push(card);
+		// Check if this card is the next expected card
+		const currentCardIndex = lobby.allDistributedCards.findIndex(
+			c => c.suit === placedCard.suit && c.rank === placedCard.rank
+		);
 
-			// Find which player has the expected card
-			const playerWithExpectedCard = lobby.players.find(p => 
-				p.cards.some(c => c.suit === expectedCard.suit && c.rank === expectedCard.rank)
-			);
+		if (currentCardIndex === lobby.expectedCardIndex) {
+			// Card is correct
+			lobby.lastPlacedCard = placedCard;
+			lobby.expectedCardIndex = currentCardIndex + 1;
+			io.to('lobby').emit('cardPlaced', { player: player.name, card: placedCard, lobby });
 
+			// Check if round is complete
+			if (lobby.players.every(p => p.cards.length === 0)) {
+				lobby.gameOver = true;
+				io.to('lobby').emit('roundComplete', {
+					message: 'Round completed successfully!',
+					lobby
+				});
+			}
+		} else {
+			// Card is incorrect - but still update the last placed card and game state
+			const expectedCard = lobby.allDistributedCards[lobby.expectedCardIndex];
+			lobby.lastPlacedCard = placedCard;
+			lobby.gameOver = true;
 			lobby.error = true;
-			lobby.gameOver = true;
-			lobby.errorMessage = `Card placed out of order! ${playerWithExpectedCard?.name || 'Someone'} had the ${expectedCard.rank} of ${expectedCard.suit} that should have been played.`;
+			lobby.errorMessage = `${player.name} played the ${placedCard.rank} of ${placedCard.suit}, but the next card should have been the ${expectedCard.rank} of ${expectedCard.suit}!`;
+			io.to('lobby').emit('cardPlaced', { player: player.name, card: placedCard, lobby });
 			io.to('lobby').emit('gameError', { message: lobby.errorMessage, lobby });
-			return;
-		}
-
-		// Card is correct, remove it from player's hand
-		player.cards.splice(cardIndex, 1);
-		lobby.lastPlacedCard = card;
-		lobby.expectedCardIndex++;
-
-		io.to('lobby').emit('cardPlaced', { player: player.name, card, lobby });
-
-		// Check if round is complete
-		if (lobby.players.every(p => p.cards.length === 0)) {
-			lobby.gameOver = true;
-			io.to('lobby').emit('roundComplete', { 
-				message: 'Round complete! All cards placed correctly!',
-				lobby 
-			});
 		}
 	});
 
@@ -202,7 +205,7 @@ io.on('connection', (socket) => {
 
 		// Deal cards
 		const deck = shuffleDeck(createDeck());
-		const cardsPerPlayer = 2 + lobby.currentRound - 1;
+		const cardsPerPlayer = getCardsPerPlayer(lobby.currentRound, lobby.players.length);
 		const distributedCards = distributeCards(deck, lobby.players.length, cardsPerPlayer);
 		
 		// Store all the distributed cards in the expected order
@@ -233,7 +236,7 @@ io.on('connection', (socket) => {
 		if (!lobby.gameOver || lobby.error) return;
 
 		const nextRound = lobby.currentRound + 1;
-		const cardsPerPlayer = 2 + nextRound - 1;
+		const cardsPerPlayer = getCardsPerPlayer(nextRound, lobby.players.length);
 		const totalCardsNeeded = cardsPerPlayer * lobby.players.length;
 
 		// If we need more cards than the deck size, we're done
