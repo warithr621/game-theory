@@ -20,6 +20,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/server ./server
 COPY --from=builder /app/tsconfig*.json ./
 
+RUN npm install --production
+
 EXPOSE 3000
 EXPOSE 3001
 

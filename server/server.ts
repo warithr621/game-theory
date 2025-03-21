@@ -7,8 +7,8 @@ import { createDeck, shuffleDeck, distributeCards, Card, ranks, suits } from './
 const app = express();
 app.use(cors());
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const server = createServer(app);
+const io = new Server(server, {
 	cors: {
 		origin: process.env.NODE_ENV === 'production'
 			? process.env.SOCKET_SERVER_URL || 'https://your-app-url.ondigitalocean.app'
@@ -300,8 +300,8 @@ io.on('connection', (socket) => {
 	});
 });
 
-const PORT = process.env.PORT || 3001;
-httpServer.listen(PORT, () => {
-	console.log(`\nServer running on port ${PORT}`);
+const PORT = process.env.SOCKET_PORT || 3001;
+server.listen(PORT, () => {
+	console.log(`Socket.IO server running on port ${PORT}`);
 	console.log('Waiting for connections...');
 }); 
