@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors({
 	origin: process.env.NODE_ENV === 'production'
-		? true  // Allow all origins in production
+		? ['https://gt-app-uqqkz.ondigitalocean.app', 'wss://gt-app-uqqkz.ondigitalocean.app']
 		: 'http://localhost:3000',
 	methods: ['GET', 'POST', 'OPTIONS'],
 	credentials: true,
@@ -20,17 +20,18 @@ const server = createServer(app);
 const io = new Server(server, {
 	cors: {
 		origin: process.env.NODE_ENV === 'production'
-			? true  // Allow all origins in production
+			? ['https://gt-app-uqqkz.ondigitalocean.app', 'wss://gt-app-uqqkz.ondigitalocean.app']
 			: 'http://localhost:3000',
 		methods: ['GET', 'POST'],
 		credentials: true,
 		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 	},
-	transports: ['websocket'],
+	transports: ['websocket', 'polling'],
 	path: '/socket.io/',
 	allowEIO3: true,
 	pingTimeout: 60000,
-	pingInterval: 25000
+	pingInterval: 25000,
+	connectTimeout: 45000
 });
 
 interface Player {

@@ -14,13 +14,14 @@ services:
     - path: /socket.io/
       preserve_path_prefix: true
       port: 3001
+      rewrite: /socket.io/
   envs:
     - key: NODE_ENV
       value: production
     - key: PORT
       value: "3001"
     - key: SOCKET_SERVER_URL
-      value: ${_self.PUBLIC_URL}
+      value: wss://gt-app-uqqkz.ondigitalocean.app
   health_check:
     http_path: /
     initial_delay_seconds: 20
