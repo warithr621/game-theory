@@ -26,11 +26,11 @@ const io = new Server(server, {
 		credentials: true,
 		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 	},
-	transports: ['websocket', 'polling'],
-	pingTimeout: 60000,
-	pingInterval: 25000,
+	transports: ['websocket'],
 	path: '/socket.io/',
-	allowEIO3: true
+	allowEIO3: true,
+	pingTimeout: 60000,
+	pingInterval: 25000
 });
 
 interface Player {

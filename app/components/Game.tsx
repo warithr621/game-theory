@@ -51,7 +51,9 @@ export default function Game() {
 			reconnection: true,
 			reconnectionAttempts: 5,
 			reconnectionDelay: 1000,
-			transports: ['websocket', 'polling']
+			transports: ['websocket'],
+			path: '/socket.io/',
+			withCredentials: true
 		});
 
 		setSocket(newSocket);
