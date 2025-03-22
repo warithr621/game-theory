@@ -1,0 +1,35 @@
+name: game-theory
+services:
+- name: web
+  github:
+    repo: warithr621/game-theory
+    branch: main
+  build_command: npm install && npm run build
+  run_command: npm run start
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 3000
+  routes:
+    - path: /
+  envs:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: "3000"
+    - key: SOCKET_SERVER_URL
+      value: ${_self.PUBLIC_URL}
+  health_check:
+    http_path: /
+  cors:
+    allow_origins:
+      - regex: ".*"
+    allow_methods:
+      - GET
+      - POST
+      - OPTIONS
+    allow_headers:
+      - "*"
+    expose_headers:
+      - "*"
+    max_age: "86400"
+    allow_credentials: true 

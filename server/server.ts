@@ -11,7 +11,9 @@ app.use(cors({
 	origin: process.env.NODE_ENV === 'production'
 		? true  // Allow all origins in production
 		: 'http://localhost:3000',
-	credentials: true
+	methods: ['GET', 'POST', 'OPTIONS'],
+	credentials: true,
+	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
 const server = createServer(app);
@@ -21,11 +23,14 @@ const io = new Server(server, {
 			? true  // Allow all origins in production
 			: 'http://localhost:3000',
 		methods: ['GET', 'POST'],
-		credentials: true
+		credentials: true,
+		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 	},
 	transports: ['websocket', 'polling'],
 	pingTimeout: 60000,
-	pingInterval: 25000
+	pingInterval: 25000,
+	path: '/socket.io/',
+	allowEIO3: true
 });
 
 interface Player {
