@@ -2,7 +2,7 @@
 
 ## Run Instructions
 
-Once cloned locally, run `npm install` and then `npm run dev` to start the server and client.
+Once cloned locally, run `npm install` and then `npm run dev` to start the server and client (note: development mode).
 
 ## Game Instructions
 
@@ -17,3 +17,5 @@ If a player places in the wrong order (say Player A places a King, when B has a 
 ## Further Notes
 
 I made this out of curiosity during spring break of my freshman year of college, as I wanted to experiment with using TS and JS. When deployed, it also makes it convenient to play the game with friends without having cards or actually being face-to-face.
+
+Special special thanks to [Coding with Robby](https://www.youtube.com/watch?v=vj34hX8jWM0&ab_channel=CodingwithRobby), this video helped me so much with the droplet deployment.
