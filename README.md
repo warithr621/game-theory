@@ -14,6 +14,10 @@ When the game starts, players can put a card at the top of the pile by clicking 
 
 If a player places in the wrong order (say Player A places a King, when B has a Jack of the same suit), the round is marked unsuccessful, and the round restarts with the same number of cards.
 
+A demo video is attached below.
+
+[![Watch the video](https://img.youtube.com/vi/sylJR7TM-3M/0.jpg)](https://www.youtube.com/watch?v=sylJR7TM-3M)
+
 ## Further Notes
 
 I made this out of curiosity during spring break of my freshman year of college, as I wanted to experiment with using TS and JS. When deployed, it also makes it convenient to play the game with friends without having cards or actually being face-to-face.
